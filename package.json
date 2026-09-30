@@ -1,0 +1,21 @@
+{
+  "name": "aura-luxe-pos-consulting",
+  "version": "1.0.0",
+  "description": "AURA LUXE — POS System & Personal Style / Color / Face / Body Consultation with Supabase & Vercel",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "pos",
+    "personal-color",
+    "face-shape",
+    "body-shape",
+    "supabase",
+    "vercel",
+    "beauty-consulting"
+  ],
+  "author": "AURA LUXE Studio",
+  "license": "MIT"
+}

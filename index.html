@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA LUXE — POS & Personal Style Studio</title>
+  <meta name="description" content="ระบบ POS หน้าร้านสำหรับสตูดิโอความงาม พร้อมระบบวิเคราะห์ Personal Color, รูปหน้า, สรีระ และสไตล์เสื้อผ้าตามเทศกาล เชื่อมต่อ Supabase & Vercel">
+  
+  <!-- Google Fonts: Kanit & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core & Feature Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pos.css">
+  <link rel="stylesheet" href="css/beauty-consult.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">✨</div>
+        <div class="brand-info">
+          <h1>AURA LUXE</h1>
+          <p>POS & Beauty Studio</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-section-title">หน้าหลัก</div>
+        <div class="nav-item active" data-view="home" id="nav-home">
+          <span class="icon">🏠</span>
+          <span>หน้าหลัก (Home Overview)</span>
+        </div>
+
+        <div class="nav-section-title">แคชเชียร์ & หน้าร้าน</div>
+        <div class="nav-item" data-view="pos" id="nav-pos">
+          <span class="icon">🛍️</span>
+          <span>ระบบขายหน้าร้าน (POS)</span>
+          <span class="nav-badge" id="cart-count-badge">0</span>
+        </div>
+
+        <div class="nav-section-title">ที่ปรึกษาภาพลักษณ์เฉพาะบุคคล</div>
+        <div class="nav-item" data-view="personal-color" id="nav-personal-color">
+          <span class="icon">🎨</span>
+          <span>Personal Color & แต่งหน้า</span>
+        </div>
+        <div class="nav-item" data-view="face-shape" id="nav-face-shape">
+          <span class="icon">💇‍♀️</span>
+          <span>รูปทรงหน้า & ทรงผม</span>
+        </div>
+        <div class="nav-item" data-view="body-shape" id="nav-body-shape">
+          <span class="icon">👗</span>
+          <span>วิเคราะห์หุ่น & เสื้อผ้า</span>
+        </div>
+        <div class="nav-item" data-view="occasions" id="nav-occasions">
+          <span class="icon">🏮</span>
+          <span>ชุดตามสถานที่ & เทศกาล</span>
+        </div>
+
+        <div class="nav-section-title admin-only">จัดการ & สถิติ (Admin)</div>
+        <div class="nav-item admin-only" data-view="admin-studio" id="nav-admin-studio">
+          <span class="icon">👥</span>
+          <span>จัดการโปรไฟล์ & สไตล์</span>
+          <span class="nav-badge admin-only">Admin</span>
+        </div>
+        <div class="nav-item admin-only" data-view="dashboard" id="nav-dashboard">
+          <span class="icon">📊</span>
+          <span>กราฟ & สถิติการใช้งาน</span>
+          <span class="nav-badge admin-only">Admin</span>
+        </div>
+        <div class="nav-item" data-view="settings" id="nav-settings">
+          <span class="icon">⚙️</span>
+          <span>ตั้งค่า & ฐานข้อมูล Supabase</span>
+        </div>
+      </nav>
+
+      <!-- Sidebar User Profile & Switcher -->
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebar-user-avatar">AL</div>
+        <div class="user-details">
+          <div class="user-name user-name-display">Aura Luxe Manager</div>
+          <span class="user-role-badge admin user-role-display">Admin</span>
+        </div>
+        <button class="btn-icon-ghost" id="btn-switch-role" title="สลับบทบาท (Admin ↔ Member)">
+          🔄
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Viewport -->
+    <main class="app-main">
+      <!-- Top Bar Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" id="mobile-menu-toggle" aria-label="Toggle Navigation">☰</button>
+          <div class="header-title-wrap">
+            <h2 id="header-current-title">หน้าหลัก (AURA LUXE Studio Overview)</h2>
+            <p id="header-current-sub">ระบบบริหารร้านค้าและวิเคราะห์ภาพลักษณ์ครบวงจร</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Database Cloud Status -->
+          <div class="header-status-pill" id="db-status-pill">
+            <span class="pulse-dot" id="db-status-dot"></span>
+            <span id="db-status-text">โหมดทดลอง: Local Storage</span>
+          </div>
+
+          <!-- Top-Right Prominent Log In / User Account Switcher -->
+          <button class="header-user-btn" id="header-user-btn" title="คลิกเพื่อเข้าสู่ระบบ หรือสลับบัญชี (Admin ↔ Member)">
+            <div class="header-avatar">AL</div>
+            <div class="header-user-meta">
+              <span class="header-user-name">Aura Luxe Manager</span>
+              <span class="header-user-sub">ผู้ดูแลระบบ (Admin) 👑</span>
+            </div>
+            <span style="font-size: 0.75rem; margin-left: 4px; opacity: 0.8; background: rgba(255,255,255,0.12); padding: 3px 6px; border-radius: 4px;">สลับบัญชี ▼</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Views Container -->
+      <div class="view-container">
+
+        <!-- ===================================================================
+             VIEW 0: HOME / SYSTEM OVERVIEW (หน้าหลัก บอกข้อมูลคร่าวๆ ของระบบ)
+             =================================================================== -->
+        <section class="page-view active" id="view-home">
+          <!-- Hero Banner Section -->
+          <div class="home-hero">
+            <img src="assets/studio_banner.jpg" class="home-hero-bg" alt="Aura Luxe Studio Atmosphere">
+            <div class="home-hero-content">
+              <span class="home-hero-badge">✨ LUXURY POS & IMAGE CONSULTATION STUDIO</span>
+              <h1 class="home-hero-title">AURA LUXE — ระบบบริหารร้านค้า & วิเคราะห์ภาพลักษณ์ครบวงจร</h1>
+              <p class="home-hero-desc">
+                แพลตฟอร์ม POS ยุคใหม่สำหรับธุรกิจความงามและสตูดิโอปรับลุค ผสานศาสตร์การวิเคราะห์ <strong>Personal Color 12 Seasons</strong>, <strong>รูปทรงหน้า & ทรงผม</strong>, <strong>สรีระหุ่น</strong> และ <strong>ชุดตามสถานที่ & เทศกาล</strong> พร้อมสรุปกราฟสถิติรายวันและรายเดือน เชื่อมต่อฐานข้อมูล Supabase และพร้อม Deploy บน Vercel ทันที
+              </p>
+              <div class="home-hero-actions">
+                <button class="btn btn-primary btn-lg" onclick="window.APP.switchView('pos')">
+                  🛍️ เริ่มขายหน้าร้าน (POS)
+                </button>
+                <button class="btn btn-gold btn-lg" onclick="window.APP.switchView('personal-color')">
+                  🎨 วิเคราะห์ Personal Color
+                </button>
+                <button class="btn btn-secondary btn-lg" onclick="window.APP.switchView('dashboard')">
+                  📊 ดูสถิติ & แดชบอร์ด
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature & System Overview Section -->
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 style="font-size: 1.35rem; font-weight: 700; color: #fff;">🌟 ข้อมูลคร่าวๆ และฟังก์ชันหลักของระบบ</h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary);">เลือกใช้งานโมดูลต่างๆ ของ AURA LUXE ได้ทันทีจากรายการด้านล่าง</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="window.APP.switchView('settings')">
+                ⚙️ ตั้งค่าระบบ & เชื่อมต่อ Supabase
+              </button>
+            </div>
+
+            <!-- Overview Feature Grid -->
+            <div class="overview-grid">
+              <!-- Feature 1: POS -->
+              <div class="feature-overview-card" style="&::before{background: var(--rose-500);}" onclick="window.APP.switchView('pos')">
+                <div class="feature-card-icon" style="background: rgba(236, 72, 153, 0.15); color: var(--rose-400);">🛍️</div>
+                <div class="feature-card-title">1. ระบบขายหน้าร้าน (POS Terminal)</div>
+                <div class="feature-card-desc">
+                  จัดการแคชเชียร์ขายสินค้าและบริการวิเคราะห์ภาพลักษณ์ ตะกร้าสินค้า คูปองส่วนลด ภาษีมูลค่าเพิ่ม (VAT 7%) รับชำระผ่าน PromptPay QR, เงินสด, บัตรเครดิต พร้อมออกใบเสร็จดิจิทัลพิมพ์ได้
+                </div>
+                <div class="feature-card-footer">
+                  <span>เปิดระบบขาย POS</span>
+                  <span>→</span>
+                </div>
+              </div>
+
+              <!-- Feature 2: Personal Color -->
+              <div class="feature-overview-card" style="&::before{background: var(--gold-400);}" onclick="window.APP.switchView('personal-color')">
+                <div class="feature-card-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--gold-400);">🎨</div>
+                <div class="feature-card-title">2. วิเคราะห์ Personal Color & แต่งหน้า</div>
+                <div class="feature-card-desc">
+                  แบบทดสอบ Undertone ผิวจริง (Warm vs Cool), ผ้าเดรปเทียบสีเสมือนจริงที่เปลี่ยนสีได้สดๆ (รองรับอัปโหลดรูปตัวเอง), จำแนก 4 Seasons 12 Sub-types พร้อมพาเลทลิปสติก บลัชออน รองพื้น และสีที่ควรเลี่ยง
+                </div>
+                <div class="feature-card-footer" style="color: var(--gold-400);">
+                  <span>เริ่มวิเคราะห์สีผิว</span>
+                  <span>→</span>
+                </div>
+              </div>
+
+              <!-- Feature 3: Face Shape & Hairstyle -->
+              <div class="feature-overview-card" style="&::before{background: var(--violet-400);}" onclick="window.APP.switchView('face-shape')">
+                <div class="feature-card-icon" style="background: rgba(139, 92, 246, 0.15); color: var(--violet-400);">💇‍♀️</div>
+                <div class="feature-card-title">3. วิเคราะห์รูปทรงหน้า & ทรงผม</div>
+                <div class="feature-card-desc">
+                  จำแนก 6 รูปทรงหน้า (รูปไข่, กลม, เหลี่ยม, หัวใจ, เพชร, หน้ายาว) แนะนำทรงผมผู้หญิงและผู้ชายที่รับกับโครงหน้า สไตล์หน้าม้า (Curtain Bangs) แว่นตาที่ขับใบหน้า และทรงที่ควรหลีกเลี่ยง
+                </div>
+                <div class="feature-card-footer" style="color: var(--violet-400);">
+                  <span>ตรวจรูปหน้า & ทรงผม</span>
+                  <span>→</span>
+                </div>
+              </div>
+
+              <!-- Feature 4: Body Shape & Wardrobe -->
+              <div class="feature-overview-card" style="&::before{background: var(--cyan-400);}" onclick="window.APP.switchView('body-shape')">
+                <div class="feature-card-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--cyan-400);">👗</div>
+                <div class="feature-card-title">4. วิเคราะห์สรีระ & ทรงเสื้อผ้า</div>
+                <div class="feature-card-desc">
+                  เครื่องคิดเลขคำนวณหุ่นจากสัดส่วน อก-เอว-สะโพก จำแนก 5 สรีระหลัก (นาฬิกาทราย, ลูกแพร์, ทรงกระบอก, สามเหลี่ยมคว่ำ, แอปเปิ้ล) พร้อมคู่มือเลือกเสื้อ คอเสื้อ กางเกง กระโปรง และเดรสพรางหุ่น
+                </div>
+                <div class="feature-card-footer" style="color: var(--cyan-400);">
+                  <span>คำนวณสรีระ & สไตล์เสื้อผ้า</span>
+                  <span>→</span>
+                </div>
+              </div>
+
+              <!-- Feature 5: Occasions & Festivals Lookbook -->
+              <div class="feature-overview-card" style="&::before{background: #f97316;}" onclick="window.APP.switchView('occasions')">
+                <div class="feature-card-icon" style="background: rgba(249, 115, 22, 0.15); color: #f97316;">🏮</div>
+                <div class="feature-card-title">5. ชุดตามสถานที่ & เทศกาลสำคัญ</div>
+                <div class="feature-card-desc">
+                  สไตล์บุ๊คแนะนำชุดที่เหมาะสมสำหรับ คาเฟ่, ทำงาน/สัมภาษณ์, เที่ยวทะเล, งานแต่งงาน, งานกาล่าดินเนอร์ และเทศกาลสงกรานต์, คริสต์มาสปีใหม่, ตรุษจีน, ลอยกระทง, ฮาโลวีน พร้อมแถบสีและเมคอัพที่แมตช์
+                </div>
+                <div class="feature-card-footer" style="color: #f97316;">
+                  <span>เปิดดูสไตล์บุ๊ค</span>
+                  <span>→</span>
+                </div>
+              </div>
+
+              <!-- Feature 6: Dashboard & Reports -->
+              <div class="feature-overview-card" style="&::before{background: var(--emerald-400);}" onclick="window.APP.switchView('dashboard')">
+                <div class="feature-card-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald-400);">📊</div>
+                <div class="feature-card-title">6. แดชบอร์ดกราฟ & สถิติการใช้งาน</div>
+                <div class="feature-card-desc">
+                  กราฟสถิติยอดขายและรายการต่อวัน (Daily) และต่อเดือน (Monthly), กราฟสัดส่วนลูกค้า 4 ฤดูกาล (Donut Chart), ตารางบันทึกกิจกรรมการใช้งานระบบของ Admin/Member พร้อมปุ่มส่งออกข้อมูลเป็น CSV
+                </div>
+                <div class="feature-card-footer" style="color: var(--emerald-400);">
+                  <span>ดูแดชบอร์ดสถิติ</span>
+                  <span>→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Technical Architecture & Specs Strip -->
+          <div class="card" style="background: linear-gradient(135deg, rgba(23, 29, 48, 0.8), rgba(30, 38, 61, 0.8)); border-color: rgba(255,255,255,0.12);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff;">⚙️ สถาปัตยกรรมระบบ & ความพร้อมใช้งาน</h4>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">
+                  ออกแบบตามมาตรฐาน Single Page Application สามารถรันบน Vercel Edge CDN ได้ทันที พร้อมระบบสลับฐานข้อมูลอัตโนมัติ
+                </p>
+              </div>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <span class="badge badge-emerald">✓ Vercel 1-Click Deploy</span>
+                <span class="badge badge-rose">✓ Supabase PostgreSQL Cloud</span>
+                <span class="badge badge-gold">✓ LocalStorage Offline Fallback</span>
+                <span class="badge badge-violet">✓ Multi-Role (Admin & Member)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 1: POS TERMINAL
+             =================================================================== -->
+        <section class="page-view" id="view-pos">
+          <div class="pos-layout">
+            <!-- Catalog Area -->
+            <div class="pos-catalog">
+              <div class="catalog-header-bar">
+                <div class="catalog-search-wrap">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" id="pos-search-input" class="form-input" placeholder="ค้นหาบริการ, ลิปสติก, แพ็กเกจ...">
+                </div>
+
+                <div class="category-pills">
+                  <button class="cat-pill active" data-category="all">ทั้งหมด</button>
+                  <button class="cat-pill" data-category="service">บริการตรวจวิเคราะห์</button>
+                  <button class="cat-pill" data-category="package">แพ็กเกจสุดคุ้ม</button>
+                  <button class="cat-pill" data-category="makeup">เครื่องสำอางตามโทน</button>
+                  <button class="cat-pill" data-category="apparel">เครื่องประดับขับผิว</button>
+                </div>
+              </div>
+
+              <!-- Products Grid -->
+              <div class="products-grid" id="pos-products-grid">
+                <!-- Injected via pos.js -->
+              </div>
+            </div>
+
+            <!-- Cart & Checkout Sidebar -->
+            <div class="pos-cart-panel">
+              <div class="cart-header">
+                <h3><span>🛒</span> ตะกร้ารายการชำระ</h3>
+                <button class="btn btn-outline btn-sm" id="btn-clear-cart" style="padding: 4px 8px; font-size: 0.75rem;">
+                  ล้างตะกร้า
+                </button>
+              </div>
+
+              <!-- Customer Selector -->
+              <div class="cart-customer-select">
+                <label for="pos-customer-select">ชื่อลูกค้า / สมาชิก</label>
+                <select id="pos-customer-select" class="form-select" style="padding: 6px 10px; font-size: 0.85rem;">
+                  <option value="ลูกค้าทั่วไป (Walk-in)">ลูกค้าทั่วไป (Walk-in)</option>
+                  <option value="คุณพิมลดา สุขใจ (Member)">คุณพิมลดา สุขใจ (Member VIP)</option>
+                  <option value="คุณกานดา วงศ์วาน (Member)">คุณกานดา วงศ์วาน</option>
+                  <option value="คุณชิดชนก สว่าง (Member)">คุณชิดชนก สว่าง</option>
+                </select>
+              </div>
+
+              <!-- Cart Items List -->
+              <div class="cart-items-list" id="cart-items-list">
+                <!-- Injected via pos.js -->
+              </div>
+
+              <!-- Cart Summary -->
+              <div class="cart-summary">
+                <div class="summary-row">
+                  <span>ยอดรวม (Subtotal):</span>
+                  <span id="cart-subtotal">฿0</span>
+                </div>
+
+                <div class="summary-row" style="align-items: center;">
+                  <span>ส่วนลด (Discount):</span>
+                  <div style="display: flex; align-items: center; gap: 4px; max-width: 110px;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">฿</span>
+                    <input type="number" id="pos-discount-input" class="form-input" style="padding: 4px 6px; font-size: 0.85rem; text-align: right;" placeholder="0" min="0">
+                  </div>
+                </div>
+
+                <div class="summary-row">
+                  <span>ภาษีมูลค่าเพิ่ม (VAT 7%):</span>
+                  <span id="cart-vat">฿0</span>
+                </div>
+
+                <div class="summary-row total">
+                  <span>ยอดสุทธิ (Total):</span>
+                  <span class="total-amount" id="cart-total">฿0</span>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="payment-methods-grid">
+                  <button class="pm-btn active" data-method="promptpay">📱 พร้อมเพย์ QR</button>
+                  <button class="pm-btn" data-method="cash">💵 เงินสด</button>
+                  <button class="pm-btn" data-method="credit_card">💳 บัตรเครดิต</button>
+                  <button class="pm-btn" data-method="transfer">🏦 โอนเงิน</button>
+                </div>
+
+                <button class="btn btn-primary btn-lg btn-full" id="btn-checkout" disabled>
+                  ชำระเงิน (฿0)
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 2: PERSONAL COLOR STUDIO
+             =================================================================== -->
+        <section class="page-view" id="view-personal-color">
+          <div class="consult-grid-2" id="personal-color-drape-section">
+            <!-- Left: Virtual Drape Tester Box -->
+            <div class="drape-tester-box card">
+              <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="card-title"><span>👗</span> ทาบผ้าเทียบสี (Virtual Color Drape)</h3>
+                <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                  📷 อัปโหลดรูปหน้า
+                  <input type="file" id="color-user-photo-upload" accept="image/*" style="display: none;">
+                </label>
+              </div>
+
+              <div class="drape-viewport">
+                <!-- Drape Fabric Layer (switches color dynamically) -->
+                <div class="drape-fabric-layer" id="drape-fabric-layer"></div>
+
+                <!-- Portrait Avatar / Uploaded Selfie -->
+                <div class="drape-face-model">
+                  <img src="assets/studio_banner.jpg" id="drape-face-img" class="face-avatar-img" alt="Portrait Model">
+                </div>
+              </div>
+
+              <!-- Color Palette Swatches -->
+              <div class="drape-color-controls">
+                <div class="swatch-group-title">คลิกเลือกเฉดผ้าเดรปเพื่อดูการขับออร่าผิว:</div>
+                <div class="color-swatches-row" id="drape-color-swatches">
+                  <!-- Injected by personal-color.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: 4 Seasons Picker & Undertone Assessment -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <!-- 4 Seasons Picker -->
+              <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                  <h3 class="card-title" style="margin-bottom: 0;">
+                    <span>🌸</span> เลือกระบบ 4 ฤดูกาล (4 Seasonal Tones)
+                  </h3>
+                  <button class="btn btn-secondary btn-sm admin-only" onclick="window.ADMIN_STUDIO.openAddColorModal()">
+                    🎨 + เพิ่มโทนสีใหม่ (Admin)
+                  </button>
+                </div>
+                <div class="seasons-grid" id="seasons-selection-grid">
+                  <!-- Injected by personal-color.js -->
+                </div>
+              </div>
+
+              <!-- Undertone Quiz -->
+              <div class="card">
+                <h3 class="card-title"><span>🧪</span> แบบทดสอบหา Undertone ผิว</h3>
+                <p class="card-subtitle" style="margin-bottom: 14px;">ตอบคำถาม 4 ข้อเพื่อประเมินกลุ่มสีผิวที่แท้จริงของคุณ</p>
+                <form id="undertone-quiz-form" style="display: flex; flex-direction: column; gap: 12px;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">1. สีเส้นเลือดบริเวณข้อมือใต้แสงธรรมชาติ:</label>
+                    <div style="display: flex; gap: 16px; font-size: 0.88rem;">
+                      <label><input type="radio" name="q_vein" value="warm" checked> สีเขียว/เขียวขี้ม้า (Warm)</label>
+                      <label><input type="radio" name="q_vein" value="cool"> สีม่วง/น้ำเงิน (Cool)</label>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">2. ใส่เครื่องประดับสีไหนแล้วหน้าดูสว่างผ่อง:</label>
+                    <div style="display: flex; gap: 16px; font-size: 0.88rem;">
+                      <label><input type="radio" name="q_jewelry" value="warm" checked> สีทอง / โรสโกลด์</label>
+                      <label><input type="radio" name="q_jewelry" value="cool"> สีเงิน / แพลตตินัม</label>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">3. ปฏิกิริยาของผิวเมื่อตากแดดจัด:</label>
+                    <div style="display: flex; gap: 16px; font-size: 0.88rem;">
+                      <label><input type="radio" name="q_sun" value="warm" checked> ผิวคล้ำขึ้นง่าย ผิวแทน</label>
+                      <label><input type="radio" name="q_sun" value="cool"> ผิวแดงง่าย แสบ ไหม้แดด</label>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">4. ระดับความเข้ม-คอนทราสต์ของสีตาและสีผมธรรมชาติ:</label>
+                    <div style="display: flex; gap: 16px; font-size: 0.88rem;">
+                      <label><input type="radio" name="q_contrast" value="light" checked> น้ำตาลอ่อน / ซอฟต์ละมุน</label>
+                      <label><input type="radio" name="q_contrast" value="deep"> ดำสนิท / เข้มคมชัด</label>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-gold btn-sm" style="align-self: flex-start; margin-top: 6px;">
+                    ⚡ ประมวลผล Undertone อัตโนมัติ
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Season Summary & Makeup Guide -->
+          <div style="margin-top: 24px;">
+            <div class="card" id="season-summary-card" style="margin-bottom: 20px;">
+              <!-- Injected by personal-color.js -->
+            </div>
+
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; color: #fff;">
+              💄 คู่มือโทนการแต่งหน้า & พาเลทสีที่เข้ากับคุณ
+            </h3>
+            <div class="makeup-guide-grid" id="makeup-recommendations-grid">
+              <!-- Injected by personal-color.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 3: FACE SHAPE & HAIRSTYLE
+             =================================================================== -->
+        <section class="page-view" id="view-face-shape">
+          <div style="margin-bottom: 24px;">
+            <div class="card" style="margin-bottom: 24px;">
+              <h3 class="card-title" style="margin-bottom: 6px;"><span>📐</span> เลือกโครงหน้าของคุณ หรือคำนวณจากสัดส่วน</h3>
+              <p class="card-subtitle" style="margin-bottom: 16px;">คลิกเลือกทรงหน้าด้านล่างเพื่อดูคำแนะนำทรงผม หน้าม้า และแว่นตาที่ช่วยขับมิติใบหน้า</p>
+
+              <div class="face-shape-picker" id="face-shape-picker-grid">
+                <!-- Injected by face-shape.js -->
+              </div>
+
+              <!-- Measurement Form (Optional) -->
+              <details style="border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 10px;">
+                <summary style="font-size: 0.88rem; font-weight: 600; color: var(--rose-400); cursor: pointer;">
+                  ⚙️ หรือกรอกสัดส่วนเพื่อคำนวณโครงหน้าอัตโนมัติ (คลิกเพื่อเปิด)
+                </summary>
+                <form id="face-ratio-form" style="margin-top: 14px;">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">ความกว้างหน้าผาก (ซม.):</label>
+                      <input type="number" id="input-forehead-width" class="form-input" value="14" step="0.5">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">ความกว้างโหนกแก้ม (ซม.):</label>
+                      <input type="number" id="input-cheekbone-width" class="form-input" value="14" step="0.5">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">ความกว้างขากรรไกร (ซม.):</label>
+                      <input type="number" id="input-jaw-width" class="form-input" value="12" step="0.5">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">ความยาวใบหน้า (ซม.):</label>
+                      <input type="number" id="input-face-length" class="form-input" value="19" step="0.5">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-secondary btn-sm">คำนวณโครงหน้า</button>
+                </form>
+              </details>
+            </div>
+
+            <!-- Face Analysis Header -->
+            <div class="card" id="face-analysis-header" style="margin-bottom: 20px;">
+              <!-- Injected by face-shape.js -->
+            </div>
+
+            <!-- Recommendations Grid -->
+            <div id="face-recommendations-content">
+              <!-- Injected by face-shape.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 4: BODY SHAPE & OUTFIT GUIDE
+             =================================================================== -->
+        <section class="page-view" id="view-body-shape">
+          <div style="margin-bottom: 24px;">
+            <!-- Calculator Box -->
+            <div class="body-calc-box">
+              <h3 class="card-title" style="margin-bottom: 6px;"><span>🧮</span> คำนวณหา Body Shape จากสัดส่วนของคุณ</h3>
+              <p class="card-subtitle" style="margin-bottom: 16px;">กรอกสัดส่วนรอบอก รอบเอว และรอบสะโพก (หน่วยเป็นนิ้ว) เพื่อคำนวณรูปทรงสรีระ</p>
+
+              <form id="body-calc-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">รอบอก (Bust - นิ้ว):</label>
+                    <input type="number" id="input-bust" class="form-input" value="34" step="0.5" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">รอบเอว (Waist - นิ้ว):</label>
+                    <input type="number" id="input-waist" class="form-input" value="26" step="0.5" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">รอบสะโพก (Hip - นิ้ว):</label>
+                    <input type="number" id="input-hip" class="form-input" value="36" step="0.5" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-gold btn-sm">
+                  ⚡ คำนวณหุ่นทันที
+                </button>
+              </form>
+            </div>
+
+            <!-- Body Shape Quick Pickers -->
+            <div class="body-shape-cards" id="body-shape-cards-grid">
+              <!-- Injected by body-shape.js -->
+            </div>
+
+            <!-- Body Analysis Header -->
+            <div class="card" id="body-analysis-header" style="margin-bottom: 20px;">
+              <!-- Injected by body-shape.js -->
+            </div>
+
+            <!-- Body Styling Guide Grid -->
+            <div id="body-recommendations-content">
+              <!-- Injected by body-shape.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 5: OCCASIONS & FESTIVALS LOOKBOOK
+             =================================================================== -->
+        <section class="page-view" id="view-occasions">
+          <div style="margin-bottom: 24px;">
+            <!-- Header with Filter Tabs & Admin Action Button -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+              <div class="lookbook-filter-tabs" id="lookbook-filter-tabs" style="margin-bottom: 0;">
+                <!-- Injected by occasions.js -->
+              </div>
+              <button class="btn btn-secondary btn-sm admin-only" onclick="window.ADMIN_STUDIO.openAddStyleModal()">
+                👗 + เพิ่มสไตล์การแต่งตัว (Admin)
+              </button>
+            </div>
+
+            <!-- Lookbook Cards Grid -->
+            <div class="lookbook-grid" id="lookbook-cards-grid">
+              <!-- Injected by occasions.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 6: DASHBOARD & REPORTS (ADMIN)
+             =================================================================== -->
+        <section class="page-view" id="view-dashboard">
+          <div class="dashboard-container">
+            <!-- KPI Summary Cards -->
+            <div class="kpi-grid">
+              <div class="kpi-card revenue">
+                <div class="kpi-top">
+                  <span class="kpi-label">ยอดขายรวมทั้งหมด</span>
+                  <div class="kpi-icon-box">💰</div>
+                </div>
+                <div class="kpi-value" id="kpi-total-revenue">฿0</div>
+                <div class="kpi-trend up">↑ +18.4% จากเดือนก่อนหน้า</div>
+              </div>
+
+              <div class="kpi-card orders">
+                <div class="kpi-top">
+                  <span class="kpi-label">จำนวนคำสั่งซื้อ POS</span>
+                  <div class="kpi-icon-box">🧾</div>
+                </div>
+                <div class="kpi-value" id="kpi-total-orders">0</div>
+                <div class="kpi-trend up">↑ ธุรกรรมชำระสำเร็จ</div>
+              </div>
+
+              <div class="kpi-card consults">
+                <div class="kpi-top">
+                  <span class="kpi-label">การวิเคราะห์ Personal Color</span>
+                  <div class="kpi-icon-box">🎨</div>
+                </div>
+                <div class="kpi-value" id="kpi-total-consults">0</div>
+                <div class="kpi-trend up">↑ บันทึกประวัติลูกค้าแล้ว</div>
+              </div>
+
+              <div class="kpi-card members">
+                <div class="kpi-top">
+                  <span class="kpi-label">สมาชิกลูกค้าในระบบ</span>
+                  <div class="kpi-icon-box">👥</div>
+                </div>
+                <div class="kpi-value" id="kpi-total-members">128</div>
+                <div class="kpi-trend neutral">• อัปเดตล่าสุดวันนี้</div>
+              </div>
+            </div>
+
+            <!-- Analytics Charts Section -->
+            <div class="charts-grid-main">
+              <!-- Daily / Monthly Sales Trend -->
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <div class="chart-title-area">
+                    <h3 id="sales-chart-title">สถิติยอดขายและรายการต่อวัน (Daily Sales Trend)</h3>
+                    <p>สรุปแนวโน้มรายรับและการให้บริการ</p>
+                  </div>
+                  <div class="tab-container" style="padding: 2px;">
+                    <button class="tab-btn chart-mode-btn active" data-mode="daily">รายวัน (Daily)</button>
+                    <button class="tab-btn chart-mode-btn" data-mode="monthly">รายเดือน (Monthly)</button>
+                  </div>
+                </div>
+                <div class="chart-viewport" id="sales-chart-viewport">
+                  <!-- Injected by dashboard.js -->
+                </div>
+              </div>
+
+              <!-- Personal Color Distribution Donut -->
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <div class="chart-title-area">
+                    <h3>สัดส่วน Personal Color</h3>
+                    <p>เปอร์เซ็นต์กลุ่มลูกค้า 4 ฤดูกาล</p>
+                  </div>
+                </div>
+                <div id="color-distribution-wrap">
+                  <!-- Injected by dashboard.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Usage Logs Table Card -->
+            <div class="card">
+              <div class="chart-card-header" style="margin-bottom: 14px;">
+                <div class="chart-title-area">
+                  <h3>ตารางบันทึกการใช้งานระบบ (System Usage & Activity Logs)</h3>
+                  <p id="logs-count-display">แสดงประวัติกิจกรรมและการทำรายการทั้งหมด</p>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-export-csv">
+                  📥 ส่งออกไฟล์ CSV
+                </button>
+              </div>
+
+              <!-- Filter Bar -->
+              <div class="table-filter-bar">
+                <div class="filter-inputs-group">
+                  <select id="log-date-filter" class="form-select" style="width: 150px; padding: 8px 12px; font-size: 0.85rem;">
+                    <option value="all">ทุกช่วงเวลา</option>
+                    <option value="today">เฉพาะวันนี้</option>
+                    <option value="month">เดือนนี้</option>
+                  </select>
+
+                  <select id="log-role-filter" class="form-select" style="width: 140px; padding: 8px 12px; font-size: 0.85rem;">
+                    <option value="all">ทุกลำดับสิทธิ์</option>
+                    <option value="admin">เฉพาะ Admin</option>
+                    <option value="member">เฉพาะ Member</option>
+                  </select>
+                </div>
+
+                <div style="flex: 1; max-width: 280px;">
+                  <input type="text" id="log-search-input" class="form-input" style="padding: 8px 14px; font-size: 0.85rem;" placeholder="ค้นหาชื่อผู้ใช้ หรือกิจกรรม...">
+                </div>
+              </div>
+
+              <!-- Table -->
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>วัน-เวลา</th>
+                      <th>ผู้ใช้งาน</th>
+                      <th>บทบาท</th>
+                      <th>ประเภทกิจกรรม</th>
+                      <th>รายละเอียด</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usage-logs-table-body">
+                    <!-- Injected by dashboard.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 7: ADMIN MANAGEMENT STUDIO (จัดการโปรไฟล์, โทนสี & สไตล์ชุด)
+             =================================================================== -->
+        <section class="page-view admin-only" id="view-admin-studio">
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Admin Studio Header & Action Cards -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+              <div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: #fff;">👥 ศูนย์จัดการข้อมูลสำหรับ Admin (Admin Studio)</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">จัดการข้อมูลลูกค้า ปรับแต่ง Personal Color โครงหน้า สรีระ และออกแบบพาเลท/สไตล์ชุดใหม่</p>
+              </div>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" onclick="window.ADMIN_STUDIO.openCreateProfileModal()">
+                  👤 + เพิ่มลูกค้าใหม่
+                </button>
+                <button class="btn btn-gold btn-sm" onclick="window.ADMIN_STUDIO.openAddColorModal()">
+                  🎨 + เพิ่มโทนสี Personal Color
+                </button>
+                <button class="btn btn-violet btn-sm" onclick="window.ADMIN_STUDIO.openAddStyleModal()">
+                  👗 + เพิ่มสไตล์ชุด & เทศกาล
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Action Summary Cards -->
+            <div class="kpi-grid">
+              <div class="card" style="padding: 18px; border-left: 4px solid var(--rose-500); cursor: pointer;" onclick="window.ADMIN_STUDIO.openCreateProfileModal()">
+                <div style="font-size: 1.5rem; margin-bottom: 6px;">👤</div>
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">จัดการโปรไฟล์ลูกค้า</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">ปรับชื่อ เบอร์โทร และบันทึกคำแนะนำเฉพาะบุคคล</div>
+              </div>
+
+              <div class="card" style="padding: 18px; border-left: 4px solid var(--gold-400); cursor: pointer;" onclick="window.ADMIN_STUDIO.openAddColorModal()">
+                <div style="font-size: 1.5rem; margin-bottom: 6px;">🎨</div>
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">เพิ่ม/ปรับแต่งโทนสี</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">เพิ่มผ้าเดรปเทียบสี และเฉดสีใหม่ใน 4 Seasons</div>
+              </div>
+
+              <div class="card" style="padding: 18px; border-left: 4px solid var(--violet-400); cursor: pointer;" onclick="window.ADMIN_STUDIO.openAddStyleModal()">
+                <div style="font-size: 1.5rem; margin-bottom: 6px;">👗</div>
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">เพิ่มสไตล์การแต่งตัว</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">สร้าง Lookbook ชุดไปงาน คาเฟ่ และเทศกาลใหม่</div>
+              </div>
+            </div>
+
+            <!-- Profiles & Members Table -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">รายชื่อสมาชิก & ผลการวิเคราะห์ภาพลักษณ์</h3>
+                  <p class="card-subtitle">Admin สามารถคลิก "✏️ แก้ไขโปรไฟล์" เพื่อเปลี่ยนชื่อ เบอร์โทร หรืออัปเดต Personal Color และหุ่นของลูกค้าได้</p>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>ชื่อลูกค้า / เบอร์โทร</th>
+                      <th>อีเมล</th>
+                      <th>บทบาท</th>
+                      <th>Personal Color</th>
+                      <th>รูปทรงหน้า</th>
+                      <th>สรีระหุ่น</th>
+                      <th style="text-align: right;">การจัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-profiles-table-body">
+                    <!-- Injected by admin-manager.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW 8: SETTINGS & SUPABASE CONFIG
+             =================================================================== -->
+        <section class="page-view" id="view-settings">
+          <div style="max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
+            <!-- Supabase Config Card -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><span>⚡</span> เชื่อมต่อฐานข้อมูล Supabase PostgreSQL</h3>
+                  <p class="card-subtitle">ใส่ URL และ Anon Public Key เพื่อเชื่อมต่อไปยังฐานข้อมูล Supabase บนคลาวด์ของคุณ</p>
+                </div>
+                <span class="badge badge-emerald">Vercel Ready</span>
+              </div>
+
+              <form id="supabase-config-form">
+                <div class="form-group">
+                  <label class="form-label" for="supabase-url-input">
+                    <span>Supabase Project URL</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">ตัวอย่าง: https://xyzcompany.supabase.co</span>
+                  </label>
+                  <input type="url" id="supabase-url-input" class="form-input" placeholder="https://xxxxxxxx.supabase.co">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="supabase-key-input">
+                    <span>Supabase Anon Public Key</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">API Key สาธารณะจาก Project Settings > API</span>
+                  </label>
+                  <input type="text" id="supabase-key-input" class="form-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 10px;">
+                  <button type="submit" class="btn btn-primary">
+                    บันทึกและเชื่อมต่อ Supabase
+                  </button>
+                  <button type="button" class="btn btn-outline" id="btn-clear-supabase">
+                    ใช้โหมดทดลอง Local Storage
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- SQL Schema Setup Guide -->
+            <div class="card">
+              <h3 class="card-title" style="margin-bottom: 8px;"><span>📋</span> สคริปต์ SQL สร้างตารางข้อมูลใน Supabase</h3>
+              <p class="card-subtitle" style="margin-bottom: 14px;">
+                คัดลอกคำสั่งในไฟล์ <code>supabase_schema.sql</code> ไปวางใน <strong>Supabase SQL Editor</strong> แล้วกด Run เพื่อสร้างตารางสินค้า คำสั่งซื้อ และการวิเคราะห์ทันที
+              </p>
+              <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-md); font-family: monospace; font-size: 0.8rem; color: var(--emerald-400); max-height: 180px; overflow-y: auto;">
+                -- ตารางที่พร้อมสร้างใน Supabase:<br>
+                ✓ public.profiles (โปรไฟล์สมาชิก และประวัติสี)<br>
+                ✓ public.services_products (รายการสินค้า & บริการ POS)<br>
+                ✓ public.orders & public.order_items (คำสั่งซื้อ & รายการย่อย)<br>
+                ✓ public.consultations (ประวัติการตรวจ Personal Color & สรีระ)<br>
+                ✓ public.usage_logs (บันทึกการใช้งานต่อวันและเดือน)<br>
+                ✓ Row Level Security (RLS) Policies
+              </div>
+            </div>
+
+            <!-- Deployment to Vercel Guide -->
+            <div class="card">
+              <h3 class="card-title" style="margin-bottom: 8px;"><span>🚀</span> วิธี Deploy ขึ้น Vercel (1-Click)</h3>
+              <p class="card-subtitle" style="margin-bottom: 12px;">โปรเจกต์นี้ตั้งค่า <code>vercel.json</code> ไว้เรียบร้อยแล้ว รองรับการ Deploy บน Vercel ทันที:</p>
+              <ol style="margin-left: 20px; font-size: 0.88rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
+                <li>นำโฟลเดอร์นี้ขึ้น GitHub Repository (เช่น <code>git init && git push</code>)</li>
+                <li>ไปที่ <a href="https://vercel.com" target="_blank" style="color: var(--rose-400);">vercel.com</a> แล้วกด <strong>Add New Project</strong></li>
+                <li>เลือก Repository ของคุณ แล้วกด <strong>Deploy</strong> ได้ทันที ไม่ต้องตั้งค่า Build Command เพิ่มเติม</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Receipt Modal Dialog -->
+  <div class="modal-backdrop" id="receipt-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>ใบเสร็จรับเงิน (Digital Receipt)</h3>
+        <button class="btn-icon-ghost btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body" id="receipt-modal-content">
+        <!-- Injected via pos.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">ปิดหน้าต่าง</button>
+        <button class="btn btn-primary" onclick="window.POS.printReceipt()">🖨️ พิมพ์ใบเสร็จ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 1: Edit Profile / Member Info (Admin) -->
+  <div class="modal-backdrop" id="modal-edit-profile">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3>✏️ ปรับแก้ข้อมูลโปรไฟล์ & ผลการวิเคราะห์</h3>
+        <button class="btn-icon-ghost btn-close-modal">✕</button>
+      </div>
+      <form id="admin-edit-profile-form">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="edit-prof-name">ชื่อ - นามสกุล / ชื่อลูกค้า</label>
+              <input type="text" id="edit-prof-name" class="form-input" required placeholder="เช่น คุณพิมลดา สุขใจ">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="edit-prof-phone">เบอร์โทรศัพท์</label>
+              <input type="tel" id="edit-prof-phone" class="form-input" placeholder="08x-xxx-xxxx">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="edit-prof-email">อีเมล</label>
+              <input type="email" id="edit-prof-email" class="form-input" required placeholder="user@example.com">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="edit-prof-role">บทบาทผู้ใช้งาน</label>
+              <select id="edit-prof-role" class="form-select">
+                <option value="member">สมาชิก (Member)</option>
+                <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="edit-prof-color">โทนสี Personal Color ประจำตัว</label>
+              <select id="edit-prof-color" class="form-select">
+                <optgroup label="Spring (Warm & Bright)">
+                  <option value="Light Spring">Light Spring</option>
+                  <option value="Warm Spring">Warm Spring</option>
+                  <option value="Bright Spring">Bright Spring</option>
+                </optgroup>
+                <optgroup label="Summer (Cool & Soft)">
+                  <option value="Light Summer">Light Summer</option>
+                  <option value="Cool Summer">Cool Summer</option>
+                  <option value="Soft Summer">Soft Summer</option>
+                </optgroup>
+                <optgroup label="Autumn (Warm & Deep)">
+                  <option value="Soft Autumn">Soft Autumn</option>
+                  <option value="Warm Autumn">Warm Autumn</option>
+                  <option value="Deep Autumn">Deep Autumn</option>
+                </optgroup>
+                <optgroup label="Winter (Cool & Vivid)">
+                  <option value="Bright Winter">Bright Winter</option>
+                  <option value="Cool Winter">Cool Winter</option>
+                  <option value="Deep Winter">Deep Winter</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="edit-prof-face">รูปทรงหน้า (Face Shape)</label>
+              <select id="edit-prof-face" class="form-select">
+                <option value="Oval">Oval (หน้ารูปไข่)</option>
+                <option value="Round">Round (หน้ากลม)</option>
+                <option value="Square">Square (หน้าเหลี่ยม)</option>
+                <option value="Heart">Heart (รูปหัวใจ)</option>
+                <option value="Diamond">Diamond (ทรงเพชร)</option>
+                <option value="Oblong">Oblong (หน้ารูปยาว)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-prof-body">รูปทรงสรีระ (Body Shape)</label>
+            <select id="edit-prof-body" class="form-select">
+              <option value="Hourglass">Hourglass (หุ่นนาฬิกาทราย)</option>
+              <option value="Pear">Pear (หุ่นลูกแพร์ / สะโพกผาย)</option>
+              <option value="Rectangle">Rectangle (หุ่นทรงกระบอก / ตรง)</option>
+              <option value="Inverted Triangle">Inverted Triangle (สามเหลี่ยมคว่ำ / ไหล่กว้าง)</option>
+              <option value="Apple">Apple (หุ่นทรงแอปเปิ้ล / เอวหนา)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="edit-prof-notes">บันทึกคำแนะนำและสไตล์เฉพาะบุคคล (Consultant Notes)</label>
+            <textarea id="edit-prof-notes" class="form-textarea" rows="2" placeholder="เช่น ลูกค้าชอบลิปสติกโทนพีชคอรัล แนะนำเสื้อคอวี และกางเกงเอวสูง..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary">บันทึกข้อมูลโปรไฟล์</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Add New Color Tone (Admin) -->
+  <div class="modal-backdrop" id="modal-add-color">
+    <div class="modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3>🎨 เพิ่มโทนสี Personal Color ใหม่</h3>
+        <button class="btn-icon-ghost btn-close-modal">✕</button>
+      </div>
+      <form id="admin-add-color-form">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="color-new-season">ฤดูกาล (Season Group)</label>
+            <select id="color-new-season" class="form-select">
+              <option value="spring">Spring (Warm & Bright) 🌸</option>
+              <option value="summer">Summer (Cool & Soft) ❄️</option>
+              <option value="autumn">Autumn (Warm & Deep) 🍁</option>
+              <option value="winter">Winter (Cool & Vivid) 💎</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="color-new-name">ชื่อเฉดสี</label>
+            <input type="text" id="color-new-name" class="form-input" required placeholder="เช่น Apricot Sunset, Rose Petal, Olive Gold">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="color-new-hex">เลือกหรือระบุรหัสสี (HEX)</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="color" id="color-picker-input" style="width: 48px; height: 42px; border-radius: 8px; border: none; cursor: pointer; background: transparent;" value="#f472b6" onchange="document.getElementById('color-new-hex').value = this.value">
+              <input type="text" id="color-new-hex" class="form-input" required value="#f472b6" placeholder="#xxxxxx" oninput="document.getElementById('color-picker-input').value = this.value">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">ยกเลิก</button>
+          <button type="submit" class="btn btn-gold">บันทึกโทนสีใหม่</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Add New Outfit & Styling Lookbook (Admin) -->
+  <div class="modal-backdrop" id="modal-add-style">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3>👗 เพิ่มสไตล์การแต่งตัว / เทศกาลใหม่</h3>
+        <button class="btn-icon-ghost btn-close-modal">✕</button>
+      </div>
+      <form id="admin-add-style-form">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="style-new-type">ประเภทลุค</label>
+              <select id="style-new-type" class="form-select">
+                <option value="place">สถานที่ & โอกาส (Places)</option>
+                <option value="festival">เทศกาลสำคัญ (Festivals)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="style-new-title">ชื่อลุค / งานเทศกาล</label>
+              <input type="text" id="style-new-title" class="form-input" required placeholder="เช่น Beach Party Resort, งานรับปริญญา">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="style-new-sub">สโลแกน / คอนเซ็ปต์ลุค</label>
+            <input type="text" id="style-new-sub" class="form-input" placeholder="เช่น หรูหรา สดใส ถ่ายรูปขึ้นกล้อง">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">พาเลท 4 สีแนะนำสำหรับลุคนี้</label>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <input type="color" id="style-color-1" style="width: 40px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" value="#f472b6" title="สีที่ 1">
+              <input type="color" id="style-color-2" style="width: 40px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" value="#fbbf24" title="สีที่ 2">
+              <input type="color" id="style-color-3" style="width: 40px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" value="#38bdf8" title="สีที่ 3">
+              <input type="color" id="style-color-4" style="width: 40px; height: 38px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" value="#f8fafc" title="สีที่ 4">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="style-new-pieces">เสื้อผ้าชิ้นสำคัญ (พิมพ์ 1 ชิ้นต่อ 1 บรรทัด)</label>
+            <textarea id="style-new-pieces" class="form-textarea" rows="3" required placeholder="เดรสผ้าซาตินพริ้วสีพาสเทล&#10;เบลเซอร์คัตติ้งเนี้ยบพอดีไหล่&#10;รองเท้าส้นสูงสีนู้ด"></textarea>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="style-new-makeup">คำแนะนำการแต่งหน้า & ทรงผม</label>
+            <input type="text" id="style-new-makeup" class="form-input" placeholder="เช่น เมคอัพงานผิวโกลว์ ลิปสติกสีส้มพีช ผมลอนคลื่นธรรมชาติ">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="style-new-tip">ทริค / ข้อควรระวัง (Pro Tip)</label>
+            <input type="text" id="style-new-tip" class="form-input" placeholder="เช่น เลี่ยงเนื้อผ้าหนาอบอ้าว เลือกรองเท้าเดินสบาย">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-close-modal">ยกเลิก</button>
+          <button type="submit" class="btn btn-violet">บันทึกสไตล์ใหม่</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Authentication & Log In Dialog (มุมขวาบน) -->
+  <div class="modal-backdrop" id="modal-auth-login">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>🔑 เข้าสู่ระบบ / สลับบัญชี (Log In)</h3>
+        <button class="btn-icon-ghost btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Quick 1-Click Role Switch -->
+        <div>
+          <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">
+            ⚡ สลับบัญชีทดสอบทันที (1-Click Switch):
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn btn-gold btn-full" id="modal-login-admin-btn" style="justify-content: flex-start; padding: 12px 18px;">
+              <span style="font-size: 1.25rem;">👑</span>
+              <div style="text-align: left; margin-left: 8px;">
+                <div style="font-weight: 700;">เข้าสู่ระบบแบบ Admin (ผู้จัดการ)</div>
+                <div style="font-size: 0.75rem; opacity: 0.85;">สิทธิ์เต็ม: ขาย POS, แก้ไขโปรไฟล์, ดูกราฟสถิติ</div>
+              </div>
+            </button>
+
+            <button class="btn btn-secondary btn-full" id="modal-login-member-btn" style="justify-content: flex-start; padding: 12px 18px; border-color: rgba(56, 189, 248, 0.4);">
+              <span style="font-size: 1.25rem;">🌸</span>
+              <div style="text-align: left; margin-left: 8px;">
+                <div style="font-weight: 700; color: #fff;">เข้าสู่ระบบแบบ Member (คุณพิมลดา สุขใจ)</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">สิทธิ์สมาชิก: วิเคราะห์ Personal Color, รูปหน้า, สรีระ</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 0.82rem;">
+          <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+          <span>หรือเข้าสู่ระบบด้วยอีเมล</span>
+          <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+        </div>
+
+        <!-- Custom Login Form -->
+        <form id="modal-custom-login-form" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="login-email-input">อีเมลผู้ใช้งาน</label>
+            <input type="email" id="login-email-input" class="form-input" required placeholder="admin@auraluxe.com หรือ member@example.com">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="login-password-input">รหัสผ่าน</label>
+            <input type="password" id="login-password-input" class="form-input" placeholder="••••••••" value="demo1234">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="login-role-select">เลือกบทบาท</label>
+            <select id="login-role-select" class="form-select">
+              <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+              <option value="member">สมาชิกทั่วไป (Member)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" style="margin-top: 6px;">
+            เข้าสู่ระบบ
+          </button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-close-modal">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules in Dependency Order -->
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/pos.js"></script>
+  <script src="js/personal-color.js"></script>
+  <script src="js/face-shape.js"></script>
+  <script src="js/body-shape.js"></script>
+  <script src="js/occasions.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/admin-manager.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
